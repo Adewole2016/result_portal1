@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Results for {{ course.code }} - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+  <h1 class="mb-4 text-center">Results for {{ course.code }} - {{ course.title }}</h1>
+
+  <div class="mb-5 text-center" style="font-family: 'Times New Roman', serif;">
+    <p style="font-size: 2.0rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0;">
+      Department: <span style="color: #000;">{{ course.department.name }}</span>
+    </p>
+    <p style="font-size: 2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0;">
+      Level: <span style="color: #000;">{% if results %}{{ results.first.student.level|default:"N/A" }}{% else %}N/A{% endif %}</span>
+    </p>
+  </div>
+
+  {% if results %}
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+      <thead class="table-primary text-center">
+        <tr>
+          <th scope="col">S/N</th>
+          <th scope="col">Matric No</th>
+          <th scope="col">Full Name</th>
+          <th scope="col">CA Score</th>
+          <th scope="col">Exam Score</th>
+          <th scope="col">Total Score</th>
+          <th scope="col">Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td class="text-center">{{ forloop.counter }}</td>
+          <td class="text-center">{{ r.student.matric_no }}</td>
+          <td>{{ r.student.user.get_full_name }}</td>
+          <td class="text-center">{{ r.ca_score }}</td>
+          <td class="text-center">{{ r.exam_score }}</td>
+          <td class="text-center fw-bold">{{ r.total_score }}</td>
+          <td class="text-center">
+            {% if r.total_score >= 40 %}
+              <span class="text-success fw-bold">Passed</span>
+            {% else %}
+              <span class="text-danger fw-bold">Failed</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4 text-center">
+    <a href="{% url 'results:download_excel' course.id %}" class="btn btn-success me-2">
+      <i class="fas fa-file-excel"></i> Download Excel
+    </a>
+    <a href="{% url 'results:download_pdf' course.id %}" class="btn btn-danger">
+      <i class="fas fa-file-pdf"></i> Download PDF
+    </a>
+    <a href="{% url 'results:download_pdf' course.id %}" class="btn btn-success me-2">
+      <i class="fas"></i> Submit Result For HOD Approval
+    </a>
+  </div>
+
+  {% else %}
+  <div class="alert alert-warning text-center" role="alert">
+    No results uploaded yet.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

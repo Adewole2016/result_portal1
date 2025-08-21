@@ -1,0 +1,190 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Broadsheet - Result Computation Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-table me-2"></i>Broadsheet</h2>
+            <a href="{% url 'results:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Form -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Broadsheet</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                        {{ form.department }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.session.id_for_label }}" class="form-label">Session</label>
+                        {{ form.session }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.semester.id_for_label }}" class="form-label">Semester</label>
+                        {{ form.semester }}
+                    </div>
+                    <div class="col-md-3">
+                        <label for="{{ form.level.id_for_label }}" class="form-label">Level</label>
+                        {{ form.level }}
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Generate Broadsheet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if broadsheet_data %}
+<div class="row mb-3">
+    <div class="col-12 text-end">
+        <a href="{% url 'results:download_broadsheet_excel' %}?department={{ selected_department.id }}&session={{ selected_session.id }}&semester={{ selected_semester.id }}&level={{ selected_level }}" 
+           class="btn btn-success me-2">
+            <i class="fas fa-file-excel me-2"></i>Download Excel
+        </a>
+        <a href="{% url 'results:download_broadsheet_excel' %}?department={{ selected_department.id }}&session={{ selected_session.id }}&semester={{ selected_semester.id }}&level={{ selected_level }}" 
+           class="btn btn-danger">
+            <i class="fas fa-file-pdf me-2"></i>Download PDF
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list-alt me-2"></i>
+                    Broadsheet for {{ selected_department.name }} - {{ selected_session.name }} ({{ selected_semester.get_semester_display }})
+                    {% if selected_level %}- Level {{ selected_level }}{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th rowspan="3" class="align-middle">S/N</th>
+                                <th rowspan="3" class="align-middle">Matric No</th>
+                                <th rowspan="3" class="align-middle">Full Name</th>
+                                <th colspan="{{ all_courses|length }}" class="text-center">Courses</th>
+
+                                {% if show_prev %}
+                                    <th rowspan="3" class="align-middle">Prev TNU</th>
+                                    <th rowspan="3" class="align-middle">Prev TCP</th>
+                                    <th rowspan="3" class="align-middle">Prev GPA</th>
+                                    <th rowspan="3" class="align-middle">CTNU</th>
+                                    <th rowspan="3" class="align-middle">CTCP</th>
+                                    <th rowspan="3" class="align-middle">CGPA</th>
+                                {% endif %}
+
+                                <th rowspan="3" class="align-middle">TNU</th>
+                                <th rowspan="3" class="align-middle">TCP</th>
+                                <th rowspan="3" class="align-middle">GPA</th>
+                                <th rowspan="3" class="align-middle">Remark</th>
+                                <th rowspan="3" class="align-middle">Failed Courses</th>
+                            </tr>
+                            <tr>
+                                {% for course in all_courses %}
+                                    <th>{{ course.code }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                {% for unit in course_units %}
+                                    <td class="text-center"><strong>{{ unit }}</strong></td>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in broadsheet_data %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ row.student.matric_no }}</td>
+                                <td>{{ row.student.user.get_full_name }}</td>
+
+                                {% for course in all_courses %}
+                                    <td>{{ row.course_scores|get_item:course.code|default:"0" }}</td>
+                                {% endfor %}
+
+                                {% if show_prev %}
+                                    <td>{{ row.prev_tnu|default:"-" }}</td>
+                                    <td>{{ row.prev_tcp|default:"-" }}</td>
+                                    <td>{{ row.prev_gpa|floatformat:2|default:"-" }}</td>
+                                    <td>{{ row.ctnu|default:"-" }}</td>
+                                    <td>{{ row.ctcp|default:"-" }}</td>
+                                    <td>{{ row.cgpa|floatformat:2|default:"-" }}</td>
+                                {% endif %}
+
+                                <td>{{ row.total_credit_units }}</td>
+                                <td>{{ row.total_grade_points }}</td>
+                                <td>{{ row.gpa|floatformat:2 }}</td>
+                                <td>{% if row.failed_courses %}FAILED{% else %}PASSED{% endif %}</td>
+                                <td>{% if row.failed_courses %}{{ row.failed_courses|join:", " }}{% else %}-{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <p><strong>No of Students in Class:</strong> {{ total_students }}</p>
+                            <p><strong>No of Students Passed:</strong> {{ total_passed }} ({{ percent_passed }}%)</p>
+                            <p><strong>No of Students Failed:</strong> {{ total_failed }} ({{ percent_failed }}%)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif request.GET %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-warning text-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>No broadsheet data found for the selected criteria.
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById("id_session").addEventListener("change", function () {
+    var sessionId = this.value;
+    var semesterSelect = document.getElementById("id_semester");
+    semesterSelect.innerHTML = `<option value="">Select Semester</option>`;
+    if (sessionId) {
+        fetch(`/api/semesters/?session_id=${sessionId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(function (semester) {
+                    var option = document.createElement("option");
+                    option.value = semester.id;
+                    option.textContent = semester.name;
+                    semesterSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching semesters:", error));
+    }
+});
+</script>
+{% endblock %}

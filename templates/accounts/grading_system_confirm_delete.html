@@ -1,0 +1,11 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h2>Delete Grading System</h2>
+<p>Are you sure you want to delete <strong>{{ object.name }}</strong>?</p>
+<form method="post">
+    {% csrf_token %}
+    <a href="{% url 'grading_system_list' %}" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+</form>
+{% endblock %}

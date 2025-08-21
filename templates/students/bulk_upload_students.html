@@ -1,0 +1,49 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Bulk Upload Students{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="fas fa-upload me-2"></i>Bulk Upload Students</h2>
+    <p>Upload an Excel file with student details.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" class="form-control mb-3" accept=".xlsx" required>
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-upload"></i> Upload
+        </button>
+    </form>
+
+    <hr>
+    <p><strong>Expected Excel Format:</strong></p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Matric No</th>
+                <th>Full Name</th>
+                <th>Age</th>
+                <th>Department</th>
+                <th>Level</th>
+                <th>Sex</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>ND2025001</td>
+                <td>John Doe</td>
+                <td>18</td>
+                <td>Computer Engineering</td>
+                <td>100</td>
+                <td>M</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h3>Manage Lecturers</h3>
+
+
+<!-- Table 1: Lecturers with Assigned Courses -->
+<h5 class="mt-4">Lecturers and Assigned Courses</h5>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Staff ID</th>
+            <th>Assigned Courses</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lecturer in lecturers %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ lecturer.get_full_name }}</td>
+            <td>{{ lecturer.staff_id }}</td>
+            <td>
+                {% with allocations=lecturer.courseallocation_set.all %}
+                    {% if allocations %}
+                        <ul class="list-unstyled mb-0">
+                            {% for allocation in allocations %}
+                            <li class="d-flex justify-content-between align-items-center">
+                                <span>{{ allocation.course.code }} - {{ allocation.course.title }}</span>
+                                <a href="{% url 'accounts:delete_allocation' allocation.id %}" class="btn btn-sm btn-danger ms-2" onclick="return confirm('Delete this course allocation?')">Delete</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="text-muted">No courses assigned</span>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td>
+                <!-- Lecturer-level actions could go here -->
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center">No lecturers found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Table 2: All Lecturers with Allocate Button -->
+<h5 class="mt-5">All Lecturers</h5>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Staff ID</th>
+            <th>Department</th>
+            <th>Allocate Course</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lecturer in all_lecturers %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ lecturer.get_full_name }}</td>
+            <td>{{ lecturer.staff_id }}</td>
+            <td>{{ lecturer.department.name }}</td>
+            <td>
+                <a href="{% url 'accounts:assign_course' lecturer.id %}" class="btn btn-sm btn-primary">Allocate</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center">No lecturers found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+```
+
+</div>
+{% endblock %}

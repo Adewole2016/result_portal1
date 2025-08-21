@@ -1,0 +1,260 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Results Dashboard - Result Computation Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-chart-line me-2"></i>Results Dashboard</h2>
+            <div class="text-muted">
+                {% if current_semester %}
+                    Current: {{ current_semester }}
+                {% else %}
+                    <span class="text-warning">No current semester set</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card primary">
+            <div class="stats-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stats-number">{{ total_results }}</div>
+            <div class="stats-title">Total Results</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card warning">
+            <div class="stats-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stats-number">{{ pending_results }}</div>
+            <div class="stats-title">Pending Results</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stats-number">{{ approved_results }}</div>
+            <div class="stats-title">Approved Results</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card danger">
+            <div class="stats-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stats-number">
+                {% if current_session %}{{ current_session.name }}{% else %}N/A{% endif %}
+            </div>
+            <div class="stats-title">Current Session</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% if user.can_upload_scores %}
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="{% url 'results:upload_scores' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-upload me-2"></i>Upload Scores
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.can_approve_results %}
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="{% url 'results:approve_results' %}" class="btn btn-success w-100">
+                            <i class="fas fa-check me-2"></i>Approve Results
+                            {% if pending_results > 0 %}
+                                <span class="badge bg-warning ms-1">{{ pending_results }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.is_student %}
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="{% url 'results:student_results' %}" class="btn btn-info w-100">
+                            <i class="fas fa-eye me-2"></i>View My Results
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="#" class="btn btn-warning w-100">
+                            <i class="fas fa-download me-2"></i>Generate Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lecturer's Allocated Courses and Recent Results -->
+{% if user.is_lecturer and allocations %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-book me-2"></i>My Courses</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Title</th>
+                                <th>Credit Units</th>
+                                <th>Level</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alloc in allocations %}
+                            <tr>
+                                <td><strong>{{ alloc.course.code }}</strong></td>
+                                <td>{{ alloc.course.title }}</td>
+                                <td>{{ alloc.course.credit_units }}</td>
+                                <td>{{ alloc.course.level }}</td>
+                                <td>
+                                    <a href="{% url 'results:download_template' alloc.course.id %}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       title="Download Score Template">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Results</h5>
+            </div>
+            <div class="card-body">
+                {% if lecturer_results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Total</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in lecturer_results %}
+                                <tr>
+                                    <td>{{ result.student.matric_no }}</td>
+                                    <td>{{ result.course.code }}</td>
+                                    <td>{{ result.total_score|floatformat:1 }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if result.grade == 'A' %}success{% elif result.grade == 'B' %}primary{% elif result.grade == 'C' %}info{% elif result.grade == 'D' %}warning{% else %}danger{% endif %}">
+                                            {{ result.grade }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if result.status == 'approved' %}success{% elif result.status == 'submitted' %}warning{% elif result.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                            {{ result.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No results uploaded yet.</p>
+                        <a href="{% url 'results:upload_scores' %}" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Upload Scores
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- System Information for Admin/HOD -->
+{% if user.is_admin or user.is_hod %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 text-primary">{{ current_session.name|default:"N/A" }}</div>
+                            <small class="text-muted">Current Session</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 text-success">{{ current_semester.get_semester_display|default:"N/A" }}</div>
+                            <small class="text-muted">Current Semester</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 text-warning">{{ pending_results }}</div>
+                            <small class="text-muted">Pending Approvals</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 text-info">Active</div>
+                            <small class="text-muted">System Status</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh pending results count every 30 seconds
+    setInterval(function() {
+        // You can implement AJAX call here to update pending results count
+    }, 30000);
+</script>
+{% endblock %}

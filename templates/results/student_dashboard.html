@@ -1,0 +1,222 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard - Result Computation Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-user-graduate me-2"></i>Student Dashboard</h2>
+            <div class="text-muted">
+                <i class="fas fa-clock me-1"></i>
+                <span id="current-time"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Info Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Student Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Full Name:</strong></td>
+                                <td>{{ user.get_full_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Matric Number:</strong></td>
+                                <td>{% if student_profile %}{{ student_profile.matric_no }}{% else %}Not Set{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Department:</strong></td>
+                                <td>{% if student_profile %}{{ student_profile.department.name }}{% else %}Not Set{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Level:</strong></td>
+                                <td>{% if student_profile %}{{ student_profile.level }}{% else %}Not Set{% endif %}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        {% if student_profile.passport_photo %}
+                            <img src="{{ student_profile.passport_photo.url }}" alt="Passport Photo" class="img-thumbnail" style="max-width: 150px;">
+                        {% else %}
+                            <div class="bg-light p-4 rounded">
+                                <i class="fas fa-user fa-4x text-muted"></i>
+                                <p class="text-muted mt-2">No Photo</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Academic Performance -->
+<div class="row mb-4">
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stats-number">{{ current_gpa|floatformat:2|default:"0.00" }}</div>
+            <div class="stats-title">Current GPA</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="stats-card primary">
+            <div class="stats-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stats-number">{{ overall_cgpa|floatformat:2|default:"0.00" }}</div>
+            <div class="stats-title">Overall CGPA</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="stats-card info">
+            <div class="stats-icon">
+                <i class="fas fa-medal"></i>
+            </div>
+            <div class="stats-number">
+                {% if overall_cgpa >= 3.5 %}
+                    Distinction
+                {% elif overall_cgpa >= 3.0 %}
+                    Upper Credit
+                {% elif overall_cgpa >= 2.5 %}
+                    Lower Credit
+                {% elif overall_cgpa >= 2.0 %}
+                    Pass
+                {% else %}
+                    Fail
+                {% endif %}
+            </div>
+            <div class="stats-title">Classification</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <a href="{% url 'results:student_results' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-eye me-2"></i>View My Results
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <a href="#" class="btn btn-success w-100">
+                            <i class="fas fa-print me-2"></i>Print Transcript
+                        </a>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <a href="{% url 'results:register_courses' %}" class="btn btn-primary w-100">
+
+                            <i class="fas fa-user-edit me-2"></i>Register Courses
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Results -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Results</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Title</th>
+                                    <th>Total Score</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in recent_results %}
+                                <tr>
+                                    <td><strong>{{ result.course.code }}</strong></td>
+                                    <td>{{ result.course.title }}</td>
+                                    <td>{{ result.total_score|floatformat:1 }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if result.grade == 'A' %}success{% elif result.grade == 'B' %}primary{% elif result.grade == 'C' %}info{% elif result.grade == 'D' %}warning{% else %}danger{% endif %}">
+                                            {{ result.grade }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if result.status == 'approved' %}success{% elif result.status == 'submitted' %}warning{% else %}secondary{% endif %}">
+                                            {{ result.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No results available yet.</p>
+                        <p class="text-muted">Your results will appear here once they are uploaded and approved.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Academic Calendar (Placeholder) -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Academic Calendar</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-3">
+                    <p class="mb-0">Current Session: <strong>{{ current_session|default:"Not Set" }}</strong></p>
+                    <p class="mb-0">Current Semester: <strong>{{ current_semester|default:"Not Set" }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString();
+        document.getElementById('current-time').textContent = timeString;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+</script>
+{% endblock %}
+

@@ -1,0 +1,31 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Lecturer List</h2>
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>S/N</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lecturer in lecturers %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ lecturer.get_full_name }}</td>
+                <td>{{ lecturer.email }}</td>
+                <td>{{ lecturer.department }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No lecturers found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

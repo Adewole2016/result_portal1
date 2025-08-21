@@ -1,0 +1,167 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Upload Scores - Result Computation Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-upload me-2"></i>Upload Scores</h2>
+            <a href="{% url 'results:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Instructions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li>Download the score template for your course using the download button below</li>
+                    <li>Fill in the CA scores (0-40) and Exam scores (0-60) in the Excel file</li>
+                    <li>Save the file and upload it using the form below</li>
+                    <li>Review the upload results and fix any errors if necessary</li>
+                    <li>Submit the results for HOD approval</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Course Templates -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-download me-2"></i>Course Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if allocations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Title</th>
+                                    <th>Credit Units</th>
+                                    <th>Level</th>
+                                    <th>Semester</th>
+                                    <th>Department</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alloc in allocations %}
+                                <tr>
+                                    <td><strong>{{ alloc.course.code }}</strong></td>
+                                    <td>{{ alloc.course.title }}</td>
+                                    <td>{{ alloc.course.credit_units }}</td>
+                                    <td>{{ alloc.course.level }}</td>
+                                    <td>{{ alloc.course.get_semester_display }}</td>
+                                    <td>{{ alloc.course.department.name }}</td>
+                                    <td class="d-flex flex-wrap gap-1">
+                                        <!-- Download Template -->
+                                        <a href="{% url 'results:download_template' alloc.course.id %}" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-download me-1"></i>Download Template
+                                        </a>
+                                        <!-- View Results -->
+                                        <a href="{% url 'results:view_results' alloc.course.id %}" 
+                                           class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye me-1"></i>View Results
+                                        </a>
+                                        <!-- Upload Scores -->
+                                        <a href="{% url 'results:upload_results' alloc.course.id %}" 
+                                           class="btn btn-success btn-sm">
+                                            <i class="fas fa-upload me-1"></i>Upload Results
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No courses assigned to you.</p>
+                        <p class="text-muted">Please contact the HOD to assign courses.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Upload Guidelines -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Important Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Score Validation:</h6>
+                        <ul class="small">
+                            <li>CA scores must be between 0-40 for Engineering and 0-30 for other department</li>
+                            <li>Exam scores must be between 0-60 for Engineering and 0-70 for other department</li>
+                            <li>Total score is automatically calculated</li>
+                            <li>Grades are assigned based on total score</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>File Requirements:</h6>
+                        <ul class="small">
+                            <li>Use only the downloaded template</li>
+                            <li>Do not modify the template structure</li>
+                            <li>Fill only the CA and Exam score columns</li>
+                            <li>Save as Excel format (.xlsx or .xls)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // File upload handling
+    document.getElementById('score_file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const uploadText = document.querySelector('.upload-text');
+            uploadText.textContent = 'Selected: ' + file.name;
+            uploadText.classList.add('text-success');
+        }
+    });
+    
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.forEach.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}

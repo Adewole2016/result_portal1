@@ -1,0 +1,45 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Course List</h2>
+    {% if courses %}
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Code</th>
+                    <th>Title</th>
+                    <th>Credit Units</th>
+                    <th>Department</th>
+                    <th>Level</th>
+                    <th>Semester</th>
+                    <th>Lecturer</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td>{{ course.code }}</td>
+                    <td>{{ course.title }}</td>
+                    <td>{{ course.credit_units }}</td>
+                    <td>{{ course.department.name }}</td>
+                    <td>{{ course.level }}</td>
+                    <td>{{ course.get_semester_display }}</td>
+                    <td>
+                        {% if course.lecturer %}
+                            {{ course.lecturer.get_full_name }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ course.description|default:"No description" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No courses found.</p>
+    {% endif %}
+</div>
+{% endblock %}

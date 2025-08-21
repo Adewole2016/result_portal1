@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h2>Grading Systems</h2>
+
+<a href="{% url 'grading_system_create' %}" class="btn btn-success">Add New Grading System</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Active?</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for system in systems %}
+        <tr>
+            <td>{{ system.name }}</td>
+            <td>{{ system.is_active }}</td>
+            <td>
+                <a href="{% url 'grading_system_update' system.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'grading_system_delete' system.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

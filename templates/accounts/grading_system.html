@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Grading Systems</h3>
+        <a href="{% url 'accounts:add_grading_system' %}" class="btn btn-primary">Add Grading System</a>
+    </div>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grading in grading_systems %}
+            <tr>
+                <td>{{ grading.name }}</td>
+                <td>{{ grading.is_active|yesno:"Active,Inactive" }}</td>
+                <td>{{ grading.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    <a href="{% url 'accounts:edit_grading_system' grading.id %}" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No grading system defined yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

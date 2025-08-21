@@ -1,0 +1,93 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}User Profile - Result Computation Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-user-circle me-2"></i>User Profile</h2>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_role" class="form-label">Role</label>
+                        <input type="text" class="form-control" id="id_role" name="role" value="{{ user.get_role_display }}" readonly>
+                    </div>
+                    {% if user.is_lecturer or user.is_hod %}
+                    <div class="mb-3">
+                        <label for="id_staff_id" class="form-label">Staff ID</label>
+                        <input type="text" class="form-control" id="id_staff_id" name="staff_id" value="{{ user.staff_id|default:'' }}" readonly>
+                    </div>
+                    {% endif %}
+                    {% if user.department %}
+                    <div class="mb-3">
+                        <label for="id_department" class="form-label">Department</label>
+                        <input type="text" class="form-control" id="id_department" name="department" value="{{ user.department.name }}" readonly>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.is_student and user.student_profile %}
+                    <hr>
+                    <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Student Details</h5>
+                    <div class="mb-3">
+                        <label for="id_matric_no" class="form-label">Matric Number</label>
+                        <input type="text" class="form-control" id="id_matric_no" name="matric_no" value="{{ user.student_profile.matric_no }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_level" class="form-label">Level</label>
+                        <input type="text" class="form-control" id="id_level" name="level" value="{{ user.student_profile.level }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_gender" class="form-label">Gender</label>
+                        <input type="text" class="form-control" id="id_gender" name="gender" value="{{ user.student_profile.get_gender_display }}" readonly>
+                    </div>
+                    {% if user.student_profile.passport_photo %}
+                    <div class="mb-3">
+                        <label class="form-label">Passport Photo</label><br>
+                        <img src="{{ user.student_profile.passport_photo.url }}" alt="Passport Photo" class="img-thumbnail" style="max-width: 150px;">
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+ 
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

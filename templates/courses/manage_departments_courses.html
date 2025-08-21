@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Departments & Courses</h2>
+    <a href="{% url 'courses:add_department' %}" class="btn btn-primary mb-2">Add Department</a>
+    <a href="{% url 'courses:add_course' %}" class="btn btn-success mb-2">Add Course</a>
+
+    <h3>Departments</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dept in departments %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ dept.name }}</td>
+                <td>
+                    <a href="{% url 'courses:edit_department' dept.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'courses:delete_department' dept.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">No departments found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Courses</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Course Name</th>
+                <th>Code</th>
+                <th>Credit Units</th>
+                <th>Department</th>
+                <th>Level</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ course.title }}</td>
+                <td>{{ course.code }}</td>
+                <td>{{ course.credit_units }}</td>
+                <td>{{ course.department.name }}</td>
+                <td>{{ course.level }}</td>
+                <td>
+                    <a href="{% url 'courses:edit_course' course.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'courses:delete_course' course.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No courses found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

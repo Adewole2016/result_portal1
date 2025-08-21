@@ -1,0 +1,35 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<h2>Register Courses</h2>
+<form method="post">
+    {% csrf_token %}
+    
+    <div>
+        {{ form.session.label_tag }}<br>
+        {{ form.session.errors }}
+        {{ form.session }}
+    </div>
+
+    <div>
+        {{ form.semester.label_tag }}<br>
+        {{ form.semester.errors }}
+        {{ form.semester }}
+    </div>
+
+    <div>
+        {{ form.courses.label_tag }}<br>
+        {{ form.courses.errors }}
+        {% for checkbox in form.courses %}
+            <div>
+                {{ checkbox.tag }} {{ checkbox.choice_label }}
+            </div>
+        {% empty %}
+            <p><em>No courses available for your department and level.</em></p>
+        {% endfor %}
+    </div>
+
+    <button type="submit">Register</button>
+</form>
+{% endblock %}
+

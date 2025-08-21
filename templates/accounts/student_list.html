@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Student List</h2>
+
+    {% if students %}
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Matric No</th>
+                    <th>Full Name</th>
+                    <th>Department</th>
+                    <th>Level</th>
+                    <th>Date of Birth</th>
+                    <th>Passport</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.matric_no }}</td>
+                    <td>{{ student.user.get_full_name  }}</td>
+                    <td>{{ student.department }}</td>
+                    <td>{{ student.level }}</td>
+                    <td>{{ student.date_of_birth }}</td>
+                    <td>
+                        {% if student.passport %}
+                            <img src="{{ student.passport.url }}" alt="Passport" width="50" height="50">
+                        {% else %}
+                            No image
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No students found.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

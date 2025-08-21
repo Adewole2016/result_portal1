@@ -1,0 +1,267 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Result Computation Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h2>
+            <div class="text-muted">
+                <i class="fas fa-clock me-1"></i>
+                <span id="current-time"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card primary">
+            <div class="stats-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stats-number">{{ total_users }}</div>
+            <div class="stats-title">Total Users</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card success">
+            <div class="stats-icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stats-number">{{ total_students }}</div>
+            <div class="stats-title">Students</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card warning">
+            <div class="stats-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="stats-number">{{ total_lecturers }}</div>
+            <div class="stats-title">Lecturers</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card danger">
+            <div class="stats-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="stats-number">{{ total_hods }}</div>
+            <div class="stats-title">HODs</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="{% url 'accounts:user_create' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>Add User
+                        </a>
+                    </div>
+                     <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="{% url 'accounts:student_list' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>Student List
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="{% url 'accounts:lecturer_list' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>Lecturer List
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <a href="{% url 'courses:course_list' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>Course List
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+			<a href="{% url 'bulk_upload_students' %}" class="btn btn-success w-100">
+			    <i class="fas fa-upload me-2"></i>Import Students
+			</a>
+
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+			<a href="{% url 'accounts:system_settings' %}" class="btn btn-info w-100">
+			    <i class="fas fa-cog me-2"></i>Add Department
+			</a>
+
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+			<a href="{% url 'accounts:system_settings' %}" class="btn btn-info w-100">
+			    <i class="fas fa-cog me-2"></i>Add Session
+			</a>
+
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+			<a href="{% url 'export_students' %}" class="btn btn-warning w-100">
+			    <i class="fas fa-download me-2"></i>Export Students
+			</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities and System Overview -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Activities</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_activities %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Description</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-2">
+                                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ activity.user.get_full_name }}</div>
+                                                <small class="text-muted">{{ activity.user.get_role_display }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if activity.action == 'login' %}success{% elif activity.action == 'logout' %}secondary{% elif activity.action == 'create' %}primary{% elif activity.action == 'update' %}warning{% elif activity.action == 'delete' %}danger{% else %}info{% endif %}">
+                                            {{ activity.get_action_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ activity.description|truncatechars:50 }}</td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ activity.timestamp|timesince }} ago
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No recent activities found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Django Version:</span>
+                        <span class="fw-bold">5.2.4</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Database:</span>
+                        <span class="fw-bold">SQLite</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Server Status:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Last Backup:</span>
+                        <span class="text-muted">Never</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>User Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Students</span>
+                        <span>{{ total_students }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: {% widthratio total_students total_users 100 %}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Lecturers</span>
+                        <span>{{ total_lecturers }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: {% widthratio total_lecturers total_users 100 %}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>HODs</span>
+                        <span>{{ total_hods }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-danger" style="width: {% widthratio total_hods total_users 100 %}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update current time
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString();
+        document.getElementById('current-time').textContent = timeString;
+    }
+    
+    // Update time every second
+    setInterval(updateTime, 1000);
+    updateTime(); // Initial call
+</script>
+{% endblock %}
+

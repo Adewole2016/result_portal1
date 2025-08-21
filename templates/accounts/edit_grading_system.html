@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Edit Grading System</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Grading System Name</label>
+            <input type="text" name="name" class="form-control" value="{{ grading_system.name }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="{% url 'accounts:grading_system' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+{% endblock %}

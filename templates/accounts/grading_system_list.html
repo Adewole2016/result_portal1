@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2>{{ grading_system.name }}  Grading Details</h2>
+    <p><strong>Status:</strong> {{ grading_system.is_active|yesno:"Active,Inactive" }}</p>
+    <p><strong>Created:</strong> {{ grading_system.created_at|date:"M d, Y" }}</p>
+
+    <h4 class="mt-4">Grade Scale</h4>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Grade</th>
+          <th>Min Score</th>
+          <th>Max Score</th>
+          <th>Grade Point</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for scale in grading_system.scales.all %}
+        <tr>
+          <td>{{ scale.grade }}</td>
+          <td>{{ scale.min_score }}</td>
+          <td>{{ scale.max_score }}</td>
+          <td>{{ scale.grade_point }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No grade scales defined for this system.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    
+  </div>
+{% endblock %}

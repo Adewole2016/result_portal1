@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Upload Scores - Result Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+  <div class="col-lg-8">
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-cloud-upload-alt me-2"></i>
+          Upload Completed Score Sheet
+        </h5>
+      </div>
+      <div class="card-body">
+        <h1 class="h4 mb-4 text-center">
+          Upload Results for {{ course.code }} - {{ course.title }}
+        </h1>
+
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+          {% csrf_token %}
+
+          <input type="hidden" name="course_id" value="{{ course.id }}">
+
+          <div class="mb-4">
+            <label for="score_file" class="form-label">Select Score Sheet File</label>
+            <div id="file-upload-area" class="file-upload-area border rounded p-3 text-center" style="cursor: pointer;">
+              <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+              <p id="file-upload-text" class="mb-2">
+                <strong>Click to select file</strong> or drag and drop
+              </p>
+              <p class="text-muted upload-text">Excel files only (.xlsx, .xls)</p>
+              <input type="file" id="score_file" name="score_file" accept=".xlsx,.xls" class="d-none" required>
+            </div>
+            <div class="invalid-feedback">
+              Please select a valid Excel file.
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="confirm_accuracy" required>
+              <label class="form-check-label" for="confirm_accuracy">
+                I confirm that all scores have been entered accurately and reviewed
+              </label>
+              <div class="invalid-feedback">
+                Please confirm the accuracy of the scores.
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="button" class="btn btn-outline-secondary me-md-2" onclick="history.back()">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-upload me-2"></i>Upload Scores
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fileInput = document.getElementById('score_file');
+  const fileUploadArea = document.getElementById('file-upload-area');
+  const fileUploadText = document.getElementById('file-upload-text');
+
+  // Open file dialog when upload area is clicked
+  fileUploadArea.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  // Update text to show selected file name
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      fileUploadText.textContent = fileInput.files[0].name;
+    } else {
+      fileUploadText.innerHTML = '<strong>Click to select file</strong> or drag and drop';
+    }
+  });
+</script>
+{% endblock %}

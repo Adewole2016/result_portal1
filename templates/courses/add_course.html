@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Add Course</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'courses:manage_departments_courses' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+{% endblock %}

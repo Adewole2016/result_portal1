@@ -1,0 +1,394 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Results - Result Computation Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-chart-line me-2"></i>My Academic Results</h2>
+            <button onclick="window.print()" class="btn btn-outline-primary print-btn">
+                <i class="fas fa-print me-2"></i>Print Results
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Student Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Student Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Full Name:</strong></td>
+                                <td>{{ student.user.get_full_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Matric Number:</strong></td>
+                                <td>{{ student.matric_no }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Department:</strong></td>
+                                <td>{{ student.department.name }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Level:</strong></td>
+                                <td>{{ student.level }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Overall CGPA:</strong></td>
+                                <td><span class="badge bg-primary fs-6">{{ overall_cgpa|floatformat:2 }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Classification:</strong></td>
+                                <td>
+                                    {% if overall_cgpa >= 3.5 %}
+                                        <span class="badge bg-success">Distinction</span>
+                                    {% elif overall_cgpa >= 3.0 %}
+                                        <span class="badge bg-primary">Upper Credit</span>
+                                    {% elif overall_cgpa >= 2.5 %}
+                                        <span class="badge bg-info">Lower Credit</span>
+                                    {% elif overall_cgpa >= 2.0 %}
+                                        <span class="badge bg-warning">Pass</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Fail</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Semester Summaries -->
+{% if summaries %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Semester Performance Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Session</th>
+                                <th>Semester</th>
+                                <th>Credit Units</th>
+                                <th>Grade Points</th>
+                                <th>GPA</th>
+                                <th>CGPA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for summary in summaries %}
+                            <tr>
+                                <td>{{ summary.semester.session.name }}</td>
+                                <td>{{ summary.semester.get_semester_display }}</td>
+                                <td>{{ summary.total_credit_units }}</td>
+                                <td>{{ summary.total_grade_points|floatformat:2 }}</td>
+                                <td>{{ summary.gpa|floatformat:2 }}</td>
+                                <td>{{ summary.cgpa|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Detailed Results -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Detailed Course Results</h5>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                    {% regroup results by semester as semester_results %}
+                    {% for semester_group in semester_results %}
+                        <h6 class="mt-4 mb-3">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            {{ semester_group.grouper }}
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Title</th>
+                                        <th>Credit Units</th>
+                                        <th>CA Score</th>
+                                        <th>Exam Score</th>
+                                        <th>Total Score</th>
+                                        <th>Grade</th>
+                                        <th>Grade Point</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in semester_group.list %}
+                                    <tr>
+
+
+
+
+                                        <td><strong>{{ result.course.code }}</strong></td>
+                                        <td>{{ result.course.title }}</td>
+                                        <td>{{ result.course.credit_units }}</td>
+                                        <td>{{ result.ca_score }}</td>
+                                        <td>{{ result.exam_score }}</td>
+                                        <td>{{ result.total_score }}</td>
+
+
+
+
+
+
+
+
+
+                                        
+					<td>
+					    <span class="badge bg-{% if result.grade == 'A' %}success
+							     {% elif result.grade == 'AB' %}primary
+							     {% elif result.grade == 'B' %}info
+							     {% elif result.grade == 'BC' %}info
+							     {% elif result.grade == 'C' %}secondary
+							     {% elif result.grade == 'CD' %}secondary
+							     {% elif result.grade == 'D' %}warning
+							     {% elif result.grade == 'E' %}warning
+							     {% else %}danger
+							     {% endif %}">
+						{{ result.grade }}
+					    </span>
+					</td>
+
+
+
+
+
+
+
+
+                                        <td>{{ result.grade_point|floatformat:2 }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if result.status == 'approved' %}success{% elif result.status == 'submitted' %}warning{% else %}secondary{% endif %}">
+                                                {{ result.get_status_display }}
+                                            </span>
+                                        </td>
+
+
+
+
+
+
+
+
+
+
+
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Semester Statistics -->
+                        {% with semester_group.list as semester_results %}
+                        <div class="row mt-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h5 text-primary">{{ semester_results|length }}</div>
+                                    <small class="text-muted">Courses</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h5 text-success">
+                                        {% for summary in summaries %}
+                                            {% if summary.semester == semester_group.grouper %}
+                                                {{ summary.total_credit_units }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">Total Credit Units</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h5 text-info">
+                                        {% for summary in summaries %}
+                                            {% if summary.semester == semester_group.grouper %}
+                                                {{ summary.gpa|floatformat:2 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">Semester GPA</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h5 text-warning">
+                                        {% for summary in summaries %}
+                                            {% if summary.semester == semester_group.grouper %}
+                                                {{ summary.cgpa|floatformat:2 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">Cumulative CGPA</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endwith %}
+                        
+                        {% if not forloop.last %}<hr>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No approved results found.</p>
+                        <p class="text-muted">Results will appear here once they are uploaded and approved by your HOD.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grade Legend -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Grading System</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Grade</th>
+                                    <th>Score Range</th>
+                                    <th>Grade Point</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-success">A</span></td>
+                                    <td>75 - 100</td>
+                                    <td>4.00</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary">AB</span></td>
+                                    <td>70 - 74</td>
+                                    <td>3.50</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info">B</span></td>
+                                    <td>65 - 69</td>
+                                    <td>3.25</td>
+                                </tr>
+
+                                <tr>
+                                    <td><span class="badge bg-info">BC</span></td>
+                                    <td>60 - 64</td>
+                                    <td>3.00</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Grade</th>
+                                    <th>Score Range</th>
+                                    <th>Grade Point</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-warning">C</span></td>
+                                    <td>55 - 59</td>
+                                    <td>2.75</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-secondary">CD</span></td>
+                                    <td>50 - 54</td>
+                                    <td>2.50</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger">D</span></td>
+                                    <td>45 - 49</td>
+                                    <td>2.25</td>
+                                </tr>
+
+                                <tr>
+                                    <td><span class="badge bg-secondary">E</span></td>
+                                    <td>40 - 44</td>
+                                    <td>2.00</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger">F</span></td>
+                                    <td>0 - 39</td>
+                                    <td>0</td>
+                                </tr>
+
+
+
+
+
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .btn, .card-header, .navbar, footer {
+            display: none !important;
+        }
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .badge {
+            color: #000 !important;
+            background-color: transparent !important;
+            border: 1px solid #000 !important;
+        }
+    }
+</style>
+{% endblock %}
+

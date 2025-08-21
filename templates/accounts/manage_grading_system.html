@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Manage Grading Systems</h3>
+    <a href="{% url 'accounts:grading_system_form' %}" class="btn btn-success mb-3">Add New</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for system in gradings %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ system.name }}</td>
+                <td>{{ system.is_active|yesno:"Active,Inactive" }}</td>
+                <td>
+                    <a href="{% url 'accounts:edit_grading_system' system.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No grading system found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
