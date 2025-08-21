@@ -1677,7 +1677,6 @@ def download_broadsheet_excel(request):
         ])
 
 
-
 def download_score_template(request, course_id):
     if not request.user.can_upload_scores():
         messages.error(request, 'Access denied. You do not have permission to download score templates.')
@@ -1713,7 +1712,7 @@ def download_score_template(request, course_id):
         cell.fill = header_fill
         cell.alignment = header_alignment
     
-    # Course information
+    # Course info
     ws.cell(row=2, column=1, value="Course:")
     ws.cell(row=2, column=2, value=f"{course.code} - {course.title}")
     ws.cell(row=3, column=1, value="Credit Units:")
@@ -1723,23 +1722,22 @@ def download_score_template(request, course_id):
     ws.cell(row=5, column=1, value="Department:")
     ws.cell(row=5, column=2, value=course.department.name)
     
-    # ✅ Hidden course ID for verification
-    ws.cell(row=1, column=26, value=f"COURSE_ID:{course.id}")  # Column Z
+    # Hidden course ID
+    ws.cell(row=1, column=26, value=f"COURSE_ID:{course.id}")
 
     start_row = 7
     for idx, student in enumerate(students, 1):
-       row = start_row + idx - 1
-       ws.cell(row=row, column=1, value=idx)
-       ws.cell(row=row, column=2, value=student.matric_no)
-       full_name = f"{student.surname} {student.first_name} {student.middle_name or ''}".strip()
-       ws.cell(row=row, column=3, value=full_name)
-       ws.cell(row=row, column=4, value="")
-       ws.cell(row=row, column=5, value="")
-       ws.cell(row=row, column=6, value=f"=D{row}+E{row}")
-       ws.cell(row=row, column=7, value=f'=IF(F{row}>=70,"A",IF(F{row}>=60,"B",IF(F{row}>=50,"C",IF(F{row}>=45,"D",IF(F{row}>=40,"E","F")))))')
-       ws.cell(row=row, column=8, value="")
+        row = start_row + idx - 1
+        ws.cell(row=row, column=1, value=idx)
+        ws.cell(row=row, column=2, value=student.matric_no)
+        full_name = student.user.get_full_name()  # ✅ Use User model's method
+        ws.cell(row=row, column=3, value=full_name)
+        ws.cell(row=row, column=4, value="")
+        ws.cell(row=row, column=5, value="")
+        ws.cell(row=row, column=6, value=f"=D{row}+E{row}")
+        ws.cell(row=row, column=7, value=f'=IF(F{row}>=70,"A",IF(F{row}>=60,"B",IF(F{row}>=50,"C",IF(F{row}>=45,"D",IF(F{row}>=40,"E","F")))))')
+        ws.cell(row=row, column=8, value="")
 
-    
     column_widths = [5, 15, 25, 15, 15, 10, 8, 15]
     for col, width in enumerate(column_widths, 1):
         ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = width
@@ -1761,6 +1759,7 @@ def download_score_template(request, course_id):
     )
     
     return response
+
 
 
 
