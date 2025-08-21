@@ -149,4 +149,10 @@ AUTHENTICATION_BACKENDS = [
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"  # or "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# Default superuser credentials for management command
+DJANGO_SUPERUSER_USERNAME = 'admin'
+DJANGO_SUPERUSER_EMAIL = 'admin@example.com'
+DJANGO_SUPERUSER_PASSWORD = 'admin'
+
+
 
