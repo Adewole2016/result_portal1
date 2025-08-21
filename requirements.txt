@@ -7,3 +7,5 @@ xlsxwriter==3.2.5
 Pillow==11.3.0
 gunicorn==22.0.0
 django-crispy-forms>=2.0a1,<2.1
+crispy-bootstrap5==0.7
+
