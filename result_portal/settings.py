@@ -9,7 +9,7 @@ import os
 import psycopg2.extensions
 import dj_database_url  
 from pathlib import Path
-DATABASES["default"]["OPTIONS"] = {"sslmode": "require"}
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
