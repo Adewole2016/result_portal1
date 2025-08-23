@@ -86,16 +86,6 @@ import os
 import dj_database_url
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-SECRET_KEY = os.getenv("SECRET_KEY", "dummy_secret_key_for_local")
-
-DEBUG = os.getenv("DEBUG", "False") == "True"
-
-ALLOWED_HOSTS = ["*"]  # Render sets hostname automatically
-
-# Application definition (leave your INSTALLED_APPS and MIDDLEWARE here...)
-
 # Database
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -103,13 +93,13 @@ DATABASES = {
     "default": dj_database_url.config(
         default=DATABASE_URL,
         conn_max_age=600,
-        ssl_require=True,  # ensures Supabase connection works
+        ssl_require=True,
     )
 }
 
-# Static files
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# Force IPv4 and SSL mode
+DATABASES["default"]["HOST"] = "db.ocjucdmnqdcjdtexdqaw.supabase.co"
+DATABASES["default"]["OPTIONS"] = {"sslmode": "require"}
 
 
 
