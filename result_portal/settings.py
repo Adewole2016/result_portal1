@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 import psycopg2.extensions
 import dj_database_url  
+from pathlib import Path
 DATABASES["default"]["OPTIONS"] = {"sslmode": "require"}
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,16 +82,35 @@ DATABASES = {
 """
 
 
-# Get DATABASE_URL from Render environment variable
+import os
+import dj_database_url
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = os.getenv("SECRET_KEY", "dummy_secret_key_for_local")
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = ["*"]  # Render sets hostname automatically
+
+# Application definition (leave your INSTALLED_APPS and MIDDLEWARE here...)
+
+# Database
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 DATABASES = {
     "default": dj_database_url.config(
         default=DATABASE_URL,
         conn_max_age=600,
-        ssl_require=True  # this handles sslmode=require automatically
+        ssl_require=True,  # ensures Supabase connection works
     )
 }
+
+# Static files
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 
 
 
